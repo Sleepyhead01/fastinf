@@ -6,14 +6,19 @@ import time
 
 # Check if CUDA is available
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Model will be loaded on device: {device}")
 
 # Load pre-trained model and tokenizer
 model_name = 'gpt2'
+start_time = time.time()
 model = GPT2LMHeadModel.from_pretrained(model_name).to(device)
 tokenizer = GPT2Tokenizer.from_pretrained(model_name)
-# start_time = time.time()
-# # model = torch.compile(model, mode="max-autotune")
-# print(f"Time taken to compile model: {time.time() - start_time}")
+print(f"Time taken to load model and tokenizer: {time.time() - start_time:.2f} seconds")
+
+start_time = time.time()
+model = torch.compile(model, mode="max-autotune")
+print(f"Time taken to compile model: {time.time() - start_time:.2f} seconds")
+
 app = FastAPI()
 
 class Body(BaseModel):
@@ -25,7 +30,9 @@ def root():
 
 @app.post('/generate')
 def predict(body: Body):
-    input_ids = tokenizer.encode(body.text, return_tensors='pt').to(device)   
+    input_ids = tokenizer.encode(body.text, return_tensors='pt').to(device)
+    
+    # Measure the inference time
     start_time = time.time()
 
     # Generate text
@@ -36,19 +43,3 @@ def predict(body: Body):
     
     generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
     return {"generated_text": generated_text, "inference_time_seconds": inference_time}
-
-# {
-#   "generated_text": "hi, who was born in the city of Kolkata, was a member of the Kolkata-based Kolkata-based Kolkata-based Kolkata-based Kolkata-based Kolkata-based Kolk",
-#   "inference_time_seconds": 1.929274320602417
-# }
-
-# {
-#   "generated_text": "hi, who was born in the city of Kolkata, was a member of the Kolkata-based Kolkata-based Kolkata-based Kolkata-based Kolkata-based Kolkata-based Kolk",
-#   "inference_time_seconds": 1.6875169277191162
-# }
-
-# {
-#   "generated_text": "hi, who was born in the city of Kolkata, was a member of the Kolkata-based Kolkata-based Kolkata-based Kolkata-based Kolkata-based Kolkata-based Kolk",
-#   "inference_time_seconds": 1.6436452865600586
-# }
-

@@ -10,4 +10,6 @@ COPY webapp/* /webapp
 
 ENTRYPOINT [ "uvicorn" ]
 
-CMD [ "--host", "0.0.0.0", "main:app" ]
+# CMD [ "--host", "0.0.0.0", "main:app" ]
+# dev mode
+CMD [ "--host", "0.0.0.0", "--reload", "--log-level", "info", "main:app" ]
