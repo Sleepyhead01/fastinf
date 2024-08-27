@@ -5,3 +5,5 @@ Depending on the type of model you need, you will need different workflow steps 
 
 # TO DO
 1. GPU warmup
+2. CI/CD
+3. Query processing
